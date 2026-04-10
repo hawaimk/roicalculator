@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agents in Customer Support — ROI Playbook</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1916; --ink-2: #4a4843; --ink-3: #8a8880;
+      --rule: #d6d3cc; --rule-light: #ece9e2;
+      --accent: #c4420f; --accent-warm: #e8a040;
+      --bg: #f5f2eb; --bg-2: #edeae2; --white: #faf8f4;
+      --teal: #0f6e56; --teal-light: #e1f5ee;
+      --purple: #534ab7; --purple-light: #eeedfe;
+      --amber: #ba7517; --amber-light: #faeeda;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'IBM Plex Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body  <nav style="background:#13112a;padding:0 40px;display:flex;border-bottom:1px 
+  solid #2d3a5a;">                                                              
+    <a href="index.html"     style="display:inline-block;padding:10px 
+  18px;font-size:0.8rem;font-weight:500;color:#a0aec0;text-decoration:none;borde
+  r-bottom:2px solid                                                            
+  transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe 
+  UI',Roboto,sans-serif;">ROI Calculator</a>                                    
+    <a href="dashboard.html" style="display:inline-block;padding:10px 
+  18px;font-size:0.8rem;font-weight:500;color:#a0aec0;text-decoration:none;borde
+  r-bottom:2px solid                                                            
+  transparent;font-family:-apple-system,BlinkMacSystemFont,'Segoe 
+  UI',Roboto,sans-serif;">Impact Dashboard</a>                                  
+    <a href="cxplaybook.html" style="display:inline-block;padding:10px 18px;font
+  -size:0.8rem;font-weight:500;color:#fff;text-decoration:none;border-bottom:2px
+   solid #90cdf4;font-family:-apple-system,BlinkMacSystemFont,'Segoe            
+  UI',Roboto,sans-serif;">CX Playbook</a>                            
+  </nav>        {
+      background: var(--bg);
+      font-family: var(--font-body);
+      color: var(--ink);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ── Header ── */
+    .pb-header {
+      background: var(--teal);
+      color: var(--white);
+      padding: 48px 64px 36px;
+      border-bottom: 3px solid var(--accent-warm);
+    }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-warm);
+      margin-bottom: 12px;
+    }
+    .pb-header h1 {
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #e1f5ee;
+      margin-bottom: 12px;
+      max-width: 700px;
+    }
+    .pb-header .sub {
+      font-size: 14px;
+      color: #9fe1cb;
+      max-width: 620px;
+      line-height: 1.65;
+    }
+    .meta-chips {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .meta-chip {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 2px;
+      padding: 4px 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #9fe1cb;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Body ── */
+    .pb-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 64px 80px;
+    }
+
+    .section {
+      padding-top: 40px;
+      margin-top: 40px;
+      border-top: 1px solid var(--rule);
+    }
+    .section:first-child { border-top: none; margin-top: 0; padding-top: 48px; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--teal);
+      letter-spacing: 0.1em;
+      min-width: 28px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    p { color: var(--ink-2); margin-bottom: 14px; font-size: 14px; line-height: 1.8; }
+    p:last-child { margin-bottom: 0; }
+    strong { color: var(--ink); font-weight: 500; }
+
+    /* ── Framework legend ── */
+    .framework-legend {
+      display: flex;
+      gap: 20px;
+      margin: 0 0 20px;
+      flex-wrap: wrap;
+    }
+    .fl-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--ink-2);
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+    }
+    .fl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Agent cards ── */
+    .agent-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 20px 0;
+    }
+    .agent-card {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .agent-card.wide { grid-column: span 2; }
+    .agent-card-header {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid var(--rule-light);
+    }
+    .agent-type {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .agent-title { font-size: 14px; font-weight: 500; color: var(--ink); }
+    .agent-card-body { padding: 12px 18px 16px; }
+    .agent-desc { font-size: 13px; color: var(--ink-2); line-height: 1.65; margin-bottom: 12px; }
+    .agent-result { display: flex; align-items: flex-start; gap: 9px; }
+    .result-pill {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+    .result-text { font-size: 12px; color: var(--ink-2); line-height: 1.55; }
+
+    .ac-quality .agent-type  { color: var(--teal); }
+    .ac-quality .agent-card-header { border-left: 3px solid var(--teal); }
+    .ac-quality .result-pill { background: var(--teal-light); color: var(--teal); }
+
+    .ac-volume .agent-type   { color: var(--purple); }
+    .ac-volume .agent-card-header { border-left: 3px solid var(--purple); }
+    .ac-volume .result-pill  { background: var(--purple-light); color: var(--purple); }
+
+    .ac-resource .agent-type { color: var(--amber); }
+    .ac-resource .agent-card-header { border-left: 3px solid var(--amber); }
+    .ac-resource .result-pill { background: var(--amber-light); color: var(--amber); }
+
+    /* ── Callout ── */
+    .callout {
+      background: var(--white);
+      border-left: 3px solid var(--teal);
+      padding: 14px 20px;
+      margin: 20px 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .callout-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin-bottom: 6px;
+    }
+    .callout p { font-size: 13px; margin: 0; }
+
+    /* ── Baseline table ── */
+    .q-simple { margin: 18px 0; }
+    .q-header {
+      display: grid;
+      grid-template-columns: 24px 1fr 1fr;
+      gap: 12px 16px;
+      padding-bottom: 7px;
+      border-bottom: 2px solid var(--ink);
+      margin-bottom: 2px;
+    }
+    .q-header span {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .q-row {
+      display: grid;
+      grid-template-columns: 24px 1fr 1fr;
+      gap: 12px 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--rule-light);
+      align-items: start;
+    }
+    .q-row:last-child { border-bottom: none; }
+    .q-n { font-family: var(--font-mono); font-size: 10px; color: var(--teal); padding-top: 2px; }
+    .q-ask { font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1.5; }
+    .q-default { font-size: 12px; color: var(--ink-3); line-height: 1.55; font-style: italic; }
+
+    /* ── ROI table ── */
+    .roi-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+    .roi-table thead tr { background: var(--teal); color: var(--white); }
+    .roi-table thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 400;
+    }
+    .roi-table tbody tr { border-bottom: 1px solid var(--rule-light); }
+    .roi-table tbody tr:nth-child(even) { background: var(--white); }
+    .roi-table tbody td { padding: 10px 14px; color: var(--ink-2); font-size: 12px; vertical-align: top; line-height: 1.55; }
+    .roi-table tbody td:first-child { color: var(--ink); font-weight: 500; }
+    .roi-table .total-row td {
+      background: var(--teal-light);
+      color: var(--teal);
+      font-weight: 500;
+      font-size: 13px;
+      border-top: 2px solid var(--teal);
+    }
+    .dim-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 2px;
+      margin-right: 6px;
+      letter-spacing: 0.08em;
+      vertical-align: middle;
+    }
+    .dt-q { background: var(--teal-light); color: var(--teal); }
+    .dt-v { background: var(--purple-light); color: var(--purple); }
+    .dt-r { background: var(--amber-light); color: var(--amber); }
+
+    /* ── Footer ── */
+    .pb-footer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 64px;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-note { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+    .footer-badge { font-family: var(--font-mono); font-size: 10px; color: var(--teal); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* ── Responsive ── */
+    @media (max-width: 680px) {
+      .pb-header { padding: 32px 24px 24px; }
+      .pb-header h1 { font-size: 22px; }
+      .pb-body { padding: 0 24px 60px; }
+      .agent-grid { grid-template-columns: 1fr; }
+      .agent-card.wide { grid-column: span 1; }
+      .q-header, .q-row { grid-template-columns: 20px 1fr; }
+      .q-header span:last-child, .q-default { display: none; }
+      .roi-table thead th:nth-child(3),
+      .roi-table tbody td:nth-child(3) { display: none; }
+      .pb-footer { flex-direction: column; gap: 8px; padding: 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="pb-header">
+    <div class="eyebrow">Use-Case Playbook · Customer Support & CX</div>
+    <h1>AI Agents in Customer Support:<br>How to Prove the ROI to Your CFO</h1>
+    <p class="sub">A field guide for CS and AE teams. Use before and after deployment to quantify and communicate business value across three dimensions: quality, volume, and resource intensity.</p>
+    <div class="meta-chips">
+      <span class="meta-chip">Function: Customer Support</span>
+      <span class="meta-chip">Deployment stage: Pre &amp; post</span>
+      <span class="meta-chip">Typical ROI window: 60–90 days</span>
+    </div>
+  </header>
+
+  <main class="pb-body">
+
+    <!-- 01 · Agent types -->
+    <section class="section" style="border-top:none; padding-top:48px">
+      <div class="section-label">
+        <span class="section-num">01</span>
+        <span class="section-title">What Agents Can You Build — and What Do They Change?</span>
+      </div>
+      <p>In a customer support function, AI agents address three types of operational problems. Each maps to a distinct improvement dimension and produces measurable outcomes.</p>
+
+      <div class="framework-legend">
+        <div class="fl-item"><div class="fl-dot" style="background:var(--teal)"></div>Quality improvement</div>
+        <div class="fl-item"><div class="fl-dot" style="background:var(--purple)"></div>Volume improvement</div>
+        <div class="fl-item"><div class="fl-dot" style="background:var(--amber)"></div>Resource intensity improvement</div>
+      </div>
+
+      <div class="agent-grid">
+
+        <div class="agent-card ac-quality">
+          <div class="agent-card-header">
+            <div class="agent-type">Quality improvement</div>
+            <div class="agent-title">Triage &amp; routing agent</div>
+          </div>
+          <div class="agent-card-body">
+            <p class="agent-desc">Reads incoming tickets, classifies intent and urgency, and routes to the right team or agent automatically — with consistent logic applied every time.</p>
+            <div class="agent-result">
+              <span class="result-pill">Quality</span>
+              <span class="result-text">Fewer mis-routes, faster first response, higher CSAT. Removes human inconsistency from the first touchpoint.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card ac-quality">
+          <div class="agent-card-header">
+            <div class="agent-type">Quality improvement</div>
+            <div class="agent-title">Response drafting agent</div>
+          </div>
+          <div class="agent-card-body">
+            <p class="agent-desc">Drafts a reply for every incoming ticket using context from the conversation history, knowledge base, and customer record. The agent reviews and sends.</p>
+            <div class="agent-result">
+              <span class="result-pill">Quality</span>
+              <span class="result-text">Consistent tone and accuracy at scale. Reduces agent cognitive load on routine replies, freeing attention for nuanced cases.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card ac-volume">
+          <div class="agent-card-header">
+            <div class="agent-type">Volume improvement</div>
+            <div class="agent-title">Tier-1 resolution agent</div>
+          </div>
+          <div class="agent-card-body">
+            <p class="agent-desc">Handles FAQs, password resets, billing inquiries, and other high-frequency low-complexity tickets end-to-end — no human in the loop.</p>
+            <div class="agent-result">
+              <span class="result-pill">Volume</span>
+              <span class="result-text">30–60% of ticket volume resolved autonomously. Human team focuses exclusively on cases that require judgment or empathy.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card ac-volume">
+          <div class="agent-card-header">
+            <div class="agent-type">Volume improvement</div>
+            <div class="agent-title">Proactive outreach agent</div>
+          </div>
+          <div class="agent-card-body">
+            <p class="agent-desc">Monitors product usage signals and triggers personalised outreach when a customer shows signs of confusion or disengagement — before they file a ticket.</p>
+            <div class="agent-result">
+              <span class="result-pill">Volume</span>
+              <span class="result-text">Deflects inbound volume at the source. Reduces tickets created rather than just tickets handled.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-card ac-resource wide">
+          <div class="agent-card-header">
+            <div class="agent-type">Resource intensity improvement</div>
+            <div class="agent-title">Post-interaction summarisation &amp; CRM update agent</div>
+          </div>
+          <div class="agent-card-body">
+            <p class="agent-desc">Automatically summarises every resolved conversation and updates the CRM record — eliminating the manual wrap-up work agents do after each ticket (typically 2–4 minutes per interaction).</p>
+            <div class="agent-result">
+              <span class="result-pill">Resource</span>
+              <span class="result-text">Reduces average handle time by 20–30% without changing the resolution itself. The same team handles more volume, or the same volume with less fatigue.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">How to use this with a prospect</div>
+        <p>Ask: <em>"Where does your team lose the most time today — handling tickets, routing them, or updating records afterwards?"</em> The answer tells you which agent type to lead with in the business case.</p>
+      </div>
+    </section>
+
+    <!-- 02 · Baseline -->
+    <section class="section">
+      <div class="section-label">
+        <span class="section-num">02</span>
+        <span class="section-title">Baseline Discovery: What to Capture Before Deployment</span>
+      </div>
+      <p>ROI is a delta. These are the five inputs you need to calculate it. If the customer doesn't have exact figures, use the industry defaults provided.</p>
+
+      <div class="q-simple">
+        <div class="q-header">
+          <span></span>
+          <span>Question to ask</span>
+          <span>Default if unknown</span>
+        </div>
+        <div class="q-row">
+          <div class="q-n">1</div>
+          <div class="q-ask">Monthly ticket volume — and is it growing?</div>
+          <div class="q-default">50–200 tickets/employee/month (B2B SaaS)</div>
+        </div>
+        <div class="q-row">
+          <div class="q-n">2</div>
+          <div class="q-ask">Average handle time per ticket (incl. wrap-up)</div>
+          <div class="q-default">8–12 min AHT; 2–4 min wrap-up</div>
+        </div>
+        <div class="q-row">
+          <div class="q-n">3</div>
+          <div class="q-ask">Support team size and fully-loaded cost per agent</div>
+          <div class="q-default">$75–90k fully-loaded, mid-market</div>
+        </div>
+        <div class="q-row">
+          <div class="q-n">4</div>
+          <div class="q-ask">Current CSAT or NPS — and churn rate</div>
+          <div class="q-default">5-pt CSAT gain ≈ 1–2% churn reduction (SaaS)</div>
+        </div>
+        <div class="q-row">
+          <div class="q-n">5</div>
+          <div class="q-ask">Share of tickets that are repetitive / tier-1</div>
+          <div class="q-default">40–70% of B2B SaaS tickets are automatable</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · ROI Snapshot -->
+    <section class="section">
+      <div class="section-label">
+        <span class="section-num">03</span>
+        <span class="section-title">Illustrative ROI Snapshot</span>
+      </div>
+      <p>The table below shows how a mid-market SaaS company (5-person support team, $3M ARR) would populate the model. Present as a range — it signals analytical honesty and survives CFO scrutiny.</p>
+
+      <table class="roi-table">
+        <thead>
+          <tr>
+            <th>Improvement dimension</th>
+            <th>Agent deployed</th>
+            <th>Customer inputs</th>
+            <th>Conservative</th>
+            <th>Upside</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="dim-tag dt-q">Quality</span>Triage &amp; routing</td>
+            <td>Triage agent</td>
+            <td>12% mis-route rate → 2%, $20/escalation, 3k tickets/mo</td>
+            <td>$28,800</td>
+            <td>$36,000</td>
+          </tr>
+          <tr>
+            <td><span class="dim-tag dt-v">Volume</span>Tier-1 resolution</td>
+            <td>Resolution agent</td>
+            <td>40% automation, 8 min AHT, 5 agents at $40/hr</td>
+            <td>$57,600</td>
+            <td>$86,400</td>
+          </tr>
+          <tr>
+            <td><span class="dim-tag dt-v">Volume</span>Churn protection</td>
+            <td>Proactive outreach</td>
+            <td>CSAT +8pts, 1.5% churn reduction, $3M ARR</td>
+            <td>$45,000</td>
+            <td>$90,000</td>
+          </tr>
+          <tr>
+            <td><span class="dim-tag dt-r">Resource</span>Wrap-up automation</td>
+            <td>Summarisation agent</td>
+            <td>3 min saved/ticket, 3k tickets/mo, $40/hr</td>
+            <td>$72,000</td>
+            <td>$72,000</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3">Total annual value (illustrative)</td>
+            <td>$203,400</td>
+            <td>$284,400</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <div class="callout-label">How to frame this in a CFO conversation</div>
+        <p>Lead with the conservative estimate. Frame the upside as "what's possible as deployment matures over 12 months" — this positions X as a partner in realising that value, not a vendor making promises.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="pb-footer">
+    <span class="footer-note">Use-Case Playbook · CX / Customer Support · Template v2.0</span>
+    <span class="footer-badge">X · ROI Framework</span>
+  </footer>
+
+</body>
+</html>
