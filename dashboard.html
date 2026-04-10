@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -238,20 +239,28 @@
     <div class="chart-card">
       <h2>Win Rate (%)</h2>
       <div class="chart-desc">Monthly closed-won / total qualified opportunities. Launch marker in red.</div>
+      <div class="segment-row">
+        <button class="seg-btn active" onclick="toggleWinRate('all', this)">All</button>
+        <button class="seg-btn" onclick="toggleWinRate('with', this)">Used calculator</button>
+        <button class="seg-btn" onclick="toggleWinRate('without', this)">Did not use</button>
+      </div>
       <div class="chart-wrapper">
         <canvas id="chartWinRate"></canvas>
       </div>
-      <div class="launch-legend"><div class="line"></div> Calculator launch</div>
     </div>
 
     <!-- Time in Evaluating -->
     <div class="chart-card">
       <h2>Avg. Days in "Evaluating" Stage</h2>
       <div class="chart-desc">Average calendar days a deal spends in the Evaluating stage before moving forward or closing.</div>
+      <div class="segment-row">
+        <button class="seg-btn active" onclick="toggleEval('all', this)">All</button>
+        <button class="seg-btn" onclick="toggleEval('with', this)">Used calculator</button>
+        <button class="seg-btn" onclick="toggleEval('without', this)">Did not use</button>
+      </div>
       <div class="chart-wrapper">
         <canvas id="chartEval"></canvas>
       </div>
-      <div class="launch-legend"><div class="line"></div> Calculator launch</div>
     </div>
 
     <!-- Expansion -->
@@ -304,18 +313,29 @@ const DATA = {
   // e.g. if launch is "Oct" and Oct is index 5 → launchIndex: 5
   launchIndex: 5,
 
-  // Win rate (%) — one value per month
+  // Win rate (%) — all accounts combined
   winRate: [31, 33, 32, 34, 33, 35, 37, 40, 42, 43, 45],
 
-  // Average days in "Evaluating" stage — one value per month
+  // Win rate segmented by calculator engagement
+  winRateSegmented: {
+    withCalc:    [null, null, null, null, null, null, 38, 42, 46, 48, 50],
+    withoutCalc: [31,   33,   32,   34,   33,   31,  32, 31, 32, 30, 31],
+  },
+
+  // Average days in "Evaluating" stage — all accounts combined
   evalDays: [19, 18, 20, 19, 18, 17, 15, 13, 12, 11, 10],
 
-  // New teams per account — segmented
+  // Eval days segmented by calculator engagement
+  evalDaysSegmented: {
+    withCalc:    [null, null, null, null, null, null, 14, 11, 9, 8, 7],
+    withoutCalc: [19,   18,   20,   19,   18,   19,  19, 20, 18, 19, 19],
+  },
+
+  // New teams per account — monthly, segmented
   expansion: {
-    labels: ["Q2 '25", "Q3 '25", "Q4 '25 (post-launch)", "Q1 '26"],
-    withCalc:    [null, null, 1.9, 2.4],   // null = no data yet (before launch)
-    withoutCalc: [1.2,  1.2,  1.3, 1.3],
-    all:         [1.2,  1.2,  1.6, 1.9],
+    withCalc:    [null, null, null, null, null, null, 1.7, 2.0, 2.2, 2.4, 2.5],
+    withoutCalc: [1.1,  1.2,  1.2,  1.1,  1.3,  1.2, 1.3, 1.2, 1.3, 1.2, 1.3],
+    all:         [1.1,  1.2,  1.2,  1.1,  1.3,  1.4, 1.6, 1.8, 2.0, 2.1, 2.2],
   },
 
   // Monthly churn rate (%) — segmented
@@ -338,57 +358,47 @@ function avg(arr) {
 const pre  = DATA.launchIndex;
 const post = DATA.launchIndex + 1;
 
-const winPre  = avg(DATA.winRate.slice(0, pre));
-const winPost = avg(DATA.winRate.slice(post));
-const winDelta = winPost - winPre;
-
-const evalPre  = avg(DATA.evalDays.slice(0, pre));
-const evalPost = avg(DATA.evalDays.slice(post));
-const evalDelta = evalPost - evalPre;
-
-const lastExpWith    = DATA.expansion.withCalc.filter(v => v !== null).slice(-1)[0];
-const lastExpWithout = DATA.expansion.withoutCalc.filter(v => v !== null).slice(-1)[0];
-
-const lastChurnWith    = DATA.churn.withCalc.filter(v => v !== null).slice(-1)[0];
-const lastChurnWithout = DATA.churn.withoutCalc.filter(v => v !== null).slice(-1)[0];
-
 document.getElementById("launch-label").textContent =
   new Date(DATA.launchDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
 
+const winPre  = avg(DATA.winRate.slice(0, pre));
+const winPost = avg(DATA.winRate.slice(post));
 document.getElementById("kpi-winrate").textContent       = winPost.toFixed(1) + "%";
-document.getElementById("kpi-winrate-delta").textContent = `▲ +${winDelta.toFixed(1)}pp vs. pre-launch`;
+document.getElementById("kpi-winrate-delta").textContent = `▲ +${(winPost - winPre).toFixed(1)}pp vs. pre-launch`;
 
+const evalPre  = avg(DATA.evalDays.slice(0, pre));
+const evalPost = avg(DATA.evalDays.slice(post));
 document.getElementById("kpi-eval").textContent       = evalPost.toFixed(0) + " days";
-document.getElementById("kpi-eval-delta").textContent = `▼ ${Math.abs(evalDelta).toFixed(0)} days vs. pre-launch`;
+document.getElementById("kpi-eval-delta").textContent = `▼ ${Math.abs(evalPost - evalPre).toFixed(0)} days vs. pre-launch`;
 
+const lastExpWith    = DATA.expansion.withCalc.filter(v => v !== null).slice(-1)[0];
+const lastExpWithout = DATA.expansion.withoutCalc.filter(v => v !== null).slice(-1)[0];
 document.getElementById("kpi-teams").textContent       = lastExpWith.toFixed(1) + " teams";
-document.getElementById("kpi-teams-delta").textContent =
-  `▲ +${(lastExpWith - lastExpWithout).toFixed(1)} vs. non-users`;
+document.getElementById("kpi-teams-delta").textContent = `▲ +${(lastExpWith - lastExpWithout).toFixed(1)} vs. non-users`;
 
+const lastChurnWith    = DATA.churn.withCalc.filter(v => v !== null).slice(-1)[0];
+const lastChurnWithout = DATA.churn.withoutCalc.filter(v => v !== null).slice(-1)[0];
 document.getElementById("kpi-churn").textContent       = lastChurnWith.toFixed(1) + "%";
-document.getElementById("kpi-churn-delta").textContent =
-  `▼ −${(lastChurnWithout - lastChurnWith).toFixed(1)}pp vs. non-users`;
+document.getElementById("kpi-churn-delta").textContent = `▼ −${(lastChurnWithout - lastChurnWith).toFixed(1)}pp vs. non-users`;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CHART HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 
-Chart.register(ChartAnnotation);
-
 const launchAnnotation = {
   type: "line",
   xMin: DATA.launchIndex - 0.5,
   xMax: DATA.launchIndex - 0.5,
-  borderColor: "#e53e3e",
+  borderColor: "rgba(229,62,62,0.7)",
   borderWidth: 1.5,
   borderDash: [4, 4],
   label: {
     display: true,
-    content: "Launch",
+    content: "Calculator launch",
     position: "start",
     color: "#e53e3e",
     font: { size: 10 },
-    backgroundColor: "transparent",
+    backgroundColor: "rgba(255,255,255,0.85)",
     yAdjust: -8,
   }
 };
@@ -404,7 +414,7 @@ const baseOptions = (yLabel, suffix = "") => ({
         label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y + suffix : "n/a"}`
       }
     },
-    annotation: { annotations: { launch: launchAnnotation } }
+    annotation: { annotations: { launch: launchAnnotation } },
   },
   scales: {
     x: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 11 } } },
@@ -420,47 +430,94 @@ const baseOptions = (yLabel, suffix = "") => ({
 // WIN RATE CHART
 // ─────────────────────────────────────────────────────────────────────────────
 
-new Chart(document.getElementById("chartWinRate"), {
+const winRateDatasets = {
+  all: [{
+    label: "All accounts",
+    data: DATA.winRate,
+    borderColor: "#38a169",
+    backgroundColor: "rgba(56,161,105,0.08)",
+    fill: true, tension: 0.35, pointRadius: 4,
+    pointBackgroundColor: "#38a169", borderWidth: 2,
+  }],
+  with: [{
+    label: "Used calculator",
+    data: DATA.winRateSegmented.withCalc,
+    borderColor: "#38a169",
+    backgroundColor: "rgba(56,161,105,0.08)",
+    fill: true, tension: 0.35, pointRadius: 4,
+    pointBackgroundColor: "#38a169", borderWidth: 2,
+    spanGaps: false,
+  }],
+  without: [{
+    label: "Did not use calculator",
+    data: DATA.winRateSegmented.withoutCalc,
+    borderColor: "#a0aec0",
+    backgroundColor: "rgba(160,174,192,0.08)",
+    fill: true, tension: 0.35, pointRadius: 4,
+    pointBackgroundColor: "#a0aec0", borderWidth: 2,
+  }],
+};
+
+const winRateChart = new Chart(document.getElementById("chartWinRate"), {
   type: "line",
-  data: {
-    labels: DATA.months,
-    datasets: [{
-      label: "Win rate",
-      data: DATA.winRate,
-      borderColor: "#38a169",
-      backgroundColor: "rgba(56,161,105,0.08)",
-      fill: true,
-      tension: 0.35,
-      pointRadius: 4,
-      pointBackgroundColor: "#38a169",
-      borderWidth: 2,
-    }]
-  },
+  data: { labels: DATA.months, datasets: winRateDatasets.all },
   options: baseOptions("Win rate (%)", "%")
 });
+
+function toggleWinRate(mode, btn) {
+  document.querySelectorAll(".seg-btn").forEach(b => {
+    if (b.onclick.toString().includes("toggleWinRate")) b.classList.remove("active");
+  });
+  btn.classList.add("active");
+  winRateChart.data.datasets = winRateDatasets[mode];
+  winRateChart.update();
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EVALUATING STAGE CHART
 // ─────────────────────────────────────────────────────────────────────────────
 
-new Chart(document.getElementById("chartEval"), {
-  type: "line",
-  data: {
-    labels: DATA.months,
-    datasets: [{
-      label: "Avg. days in Evaluating",
-      data: DATA.evalDays,
-      borderColor: "#3182ce",
-      backgroundColor: "rgba(49,130,206,0.08)",
-      fill: true,
-      tension: 0.35,
-      pointRadius: 4,
-      pointBackgroundColor: "#3182ce",
-      borderWidth: 2,
-    }]
-  },
+const evalDatasets = {
+  all: [{
+    label: "All accounts",
+    data: DATA.evalDays,
+    backgroundColor: "rgba(49,130,206,0.7)",
+    borderColor: "#3182ce",
+    borderWidth: 1,
+    borderRadius: 4,
+  }],
+  with: [{
+    label: "Used calculator",
+    data: DATA.evalDaysSegmented.withCalc,
+    backgroundColor: "rgba(49,130,206,0.7)",
+    borderColor: "#3182ce",
+    borderWidth: 1,
+    borderRadius: 4,
+  }],
+  without: [{
+    label: "Did not use calculator",
+    data: DATA.evalDaysSegmented.withoutCalc,
+    backgroundColor: "rgba(160,174,192,0.5)",
+    borderColor: "#a0aec0",
+    borderWidth: 1,
+    borderRadius: 4,
+  }],
+};
+
+const evalChart = new Chart(document.getElementById("chartEval"), {
+  type: "bar",
+  data: { labels: DATA.months, datasets: evalDatasets.all },
   options: baseOptions("Days", " d")
 });
+
+function toggleEval(mode, btn) {
+  document.querySelectorAll(".seg-btn").forEach(b => {
+    if (b.onclick.toString().includes("toggleEval")) b.classList.remove("active");
+  });
+  btn.classList.add("active");
+  evalChart.data.datasets = evalDatasets[mode];
+  evalChart.update();
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EXPANSION CHART
@@ -470,55 +527,33 @@ const expansionDatasets = {
   both: [{
     label: "All accounts",
     data: DATA.expansion.all,
+    backgroundColor: "rgba(107,70,193,0.7)",
     borderColor: "#6b46c1",
-    backgroundColor: "rgba(107,70,193,0.10)",
-    fill: true, tension: 0.35, pointRadius: 5,
-    pointBackgroundColor: "#6b46c1", borderWidth: 2,
+    borderWidth: 1,
+    borderRadius: 4,
   }],
   with: [{
     label: "Used calculator",
     data: DATA.expansion.withCalc,
+    backgroundColor: "rgba(107,70,193,0.7)",
     borderColor: "#6b46c1",
-    backgroundColor: "rgba(107,70,193,0.10)",
-    fill: true, tension: 0.35, pointRadius: 5,
-    pointBackgroundColor: "#6b46c1", borderWidth: 2,
-    spanGaps: false,
+    borderWidth: 1,
+    borderRadius: 4,
   }],
   without: [{
     label: "Did not use calculator",
     data: DATA.expansion.withoutCalc,
+    backgroundColor: "rgba(160,174,192,0.5)",
     borderColor: "#a0aec0",
-    backgroundColor: "rgba(160,174,192,0.08)",
-    fill: true, tension: 0.35, pointRadius: 5,
-    pointBackgroundColor: "#a0aec0", borderWidth: 2,
+    borderWidth: 1,
+    borderRadius: 4,
   }],
-};
-
-const expansionOpts = {
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y : "n/a"}` }
-    },
-    annotation: { annotations: {} }
-  },
-  scales: {
-    x: { grid: { color: "#f0f0f0" }, ticks: { font: { size: 11 } } },
-    y: {
-      grid: { color: "#f0f0f0" },
-      ticks: { font: { size: 11 } },
-      title: { display: true, text: "New teams / account", font: { size: 10 }, color: "#a0aec0" },
-      min: 0,
-    }
-  }
 };
 
 const expansionChart = new Chart(document.getElementById("chartExpansion"), {
   type: "bar",
-  data: { labels: DATA.expansion.labels, datasets: expansionDatasets.both },
-  options: expansionOpts
+  data: { labels: DATA.months, datasets: expansionDatasets.both },
+  options: baseOptions("New teams / account", "")
 });
 
 function toggleExpansion(mode, btn) {
@@ -565,13 +600,7 @@ const churnDatasets = {
 const churnChart = new Chart(document.getElementById("chartChurn"), {
   type: "line",
   data: { labels: DATA.months, datasets: churnDatasets.both },
-  options: {
-    ...baseOptions("Churn rate (%)", "%"),
-    plugins: {
-      ...baseOptions("Churn rate (%)", "%").plugins,
-      annotation: { annotations: { launch: launchAnnotation } }
-    }
-  }
+  options: baseOptions("Churn rate (%)", "%")
 });
 
 function toggleChurn(mode, btn) {
